@@ -26,3 +26,4 @@ contract AddTest is Test {
         assertEq(add.add(4, 2), 6, "expected a + b to equal c");
     }
 }
+

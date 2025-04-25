@@ -24,4 +24,10 @@ contract AccessModifiersTest is Test {
         child.setValue(1);
         assertEq(child.getValue(), 1, "expected to be 1");
     }
+
+    function testGetValue() external {
+        child.setValue(350);
+        child.getValue();
+        assertEq(child.getValue(), 350);
+    }
 }

@@ -24,7 +24,7 @@ contract BasicBankTest is Test {
     function testRemoveEther() external {
         vm.deal(address(this), 1 ether);
         vm.expectRevert();
-        basicBank.removeEther(1);
+        basicBank.removeEther(1 ether);
         basicBank.addEther{value: 1 ether}();
         basicBank.removeEther(1 ether);
         assertEq(

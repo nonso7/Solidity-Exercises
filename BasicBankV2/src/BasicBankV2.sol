@@ -3,14 +3,19 @@ pragma solidity ^0.8.13;
 
 contract BasicBankV2 {
     /// used to store the balance of users
-    ///     USER    =>  BALANCE
     mapping(address => uint256) public balances;
 
     /// @notice deposit ether into the contract
-    /// @dev it should work properly when called multiple times
-    function addEther() external payable {}
+    function addEther() external payable {
+        balances[msg.sender] += msg.value; // ✅ use msg.sender
+    }
 
     /// @notice used to withdraw ether from the contract
-    /// @param amount of ether to remove. Cannot execeed balance i.e users cannot withdraw more than they deposited
-    function removeEther(uint256 amount) external payable {}
+    function removeEther(uint256 amount) external {
+        require(balances[msg.sender] >= amount, "Insufficient balance"); // ✅ use msg.sender
+        balances[msg.sender] -= amount; // ✅ subtract from msg.sender balance
+
+        (bool sent, ) = msg.sender.call{value: amount}("");
+        require(sent, "Failed to send");
+    }
 }
