@@ -15,5 +15,14 @@ contract DistributeV2 {
 
     function distributeEther(address[] memory addresses) public {
         // your code here
+        //address reject;
+        for(uint i = 0; i < addresses.length; i++) {
+            (bool ok,) = addresses[i].call{value: 1 ether}("");
+            //require(ok, "Failed txn");
+            if(!ok) {
+                //reject = addresses[i];
+                continue;
+            }
+        }
     }
 }
