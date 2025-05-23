@@ -9,6 +9,14 @@ contract TimelockEscrow {
      * A buyer deposits ether into a contract, and the seller cannot withdraw it until 3 days passes. Before that, the buyer can take it back
      * Assume the owner is the seller
      */
+    struct Escrow {
+        uint256 amount;
+        uint256 depositTime;
+    }
+
+
+
+    mapping(address => Escrow) public buyerDetails;
 
     constructor() {
         seller = msg.sender;
@@ -22,6 +30,10 @@ contract TimelockEscrow {
      */
     function createBuyOrder() external payable {
         // your code here
+        require(msg.value > 0, "Deposit should be greater than zero");
+        buyerDetails[msg.sender] = Escrow(msg.value, block.timestamp);
+      
+
     }
 
     /**
@@ -29,6 +41,18 @@ contract TimelockEscrow {
      */
     function sellerWithdraw(address buyer) external {
         // your code here
+        require(msg.sender == seller, "You are not the seller");
+        require(buyerDetails[buyer].amount > 0, "Buyer hasn't Deposited any eth");
+        uint256 buyerDepositTime = buyerDetails[buyer].depositTime;
+        uint256 currentTime = block.timestamp;
+        uint256 duration = currentTime - buyerDepositTime;
+
+        uint256 threeDays = 24 * 3 * 60 * 60;
+
+        require(duration >= threeDays, "You can only withdraw after 3 days");
+        payable(seller).transfer(buyerDetails[buyer].amount);
+
+        buyerDetails[buyer].amount = 0;
     }
 
     /**
@@ -36,10 +60,23 @@ contract TimelockEscrow {
      */
     function buyerWithdraw() external {
         // your code here
+        require(buyerDetails[msg.sender].amount > 0, "You havent Deposited Any ETH in the past");
+        uint256 buyerDepositTime = buyerDetails[msg.sender].depositTime;
+        uint256 currentTime = block.timestamp;
+        uint256 duration = currentTime - buyerDepositTime;
+
+        uint256 threeDays = 24 * 3 * 60 * 60;
+
+        require(duration < threeDays);
+
+        payable(msg.sender).transfer(buyerDetails[msg.sender].amount);
+
+        buyerDetails[msg.sender].amount = 0;
     }
 
     // returns the escrowed amount of @param buyer
     function buyerDeposit(address buyer) external view returns (uint256) {
         // your code here
+        return buyerDetails[buyer].amount;
     }
 }

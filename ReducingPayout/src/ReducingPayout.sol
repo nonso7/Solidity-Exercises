@@ -14,10 +14,34 @@ contract ReducingPayout {
     uint256 public immutable depositedTime;
 
     constructor() payable {
+        
         depositedTime = block.timestamp;
     }
 
     function withdraw() public {
-        // your code here
+        uint256 currentTime = block.timestamp;
+        uint256 timeElapsed = currentTime - depositedTime;
+        
+        // 24 hours in seconds
+        uint256 twentyFourHours = 24 * 60 * 60;
+        
+        if (timeElapsed >= twentyFourHours) {
+            // After 24 hours, nothing can be withdrawn
+            return;
+        }
+        
+        // Calculate the withdrawable amount
+        // Decreases by 0.0011574 ether per second (which is 0.0011574% of 1 ether per second)
+        uint256 reductionPerSecond = 11574000000000;
+        
+        // Total reduction = timeElapsed * reductionPerSecond
+        uint256 totalReduction = timeElapsed * reductionPerSecond;
+        
+        // Withdrawable amount = 1 ether - totalReduction
+        uint256 amount = 1 ether - totalReduction;
+        
+        // Transfer the calculated amount to the caller
+        payable(msg.sender).transfer(amount);
+       
     }
 }
